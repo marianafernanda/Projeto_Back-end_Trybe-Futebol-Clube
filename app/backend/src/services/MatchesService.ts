@@ -1,13 +1,11 @@
 import MatchModel from '../database/models/MatchModel';
-import TeamModel from '../database/models/TeamModel';
+import Match from '../interfaces/match.interface';
 
 export default class MatchesService {
   private _model;
-  private _teamModel;
 
   constructor() {
     this._model = MatchModel;
-    this._teamModel = TeamModel;
   }
 
   async getAll() {
@@ -23,5 +21,18 @@ export default class MatchesService {
       include: { all: true, attributes: { exclude: ['id'] } },
     });
     return matches;
+  }
+
+  async create(match: Match) {
+    const { homeTeam, homeTeamGoals, awayTeam, awayTeamGoals } = match;
+
+    const createdMatch = await this._model.create({
+      homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress: 1,
+    });
+    return createdMatch;
+  }
+
+  async updateProgress(id: string) {
+    await this._model.update({ inProgress: 0 }, { where: { id } });
   }
 }

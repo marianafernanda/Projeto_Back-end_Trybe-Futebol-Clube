@@ -21,5 +21,7 @@ app.get('/login/validate', validateToken, LoginController.loginValidate);
 app.get('/teams', (req, res) => teamsController.getAll(req, res));
 app.get('/teams/:id', (req, res) => teamsController.getById(req, res));
 app.get('/matches', (req, res) => matchesController.getAll(req, res));
+app.post('/matches', validateToken, (req, res) => matchesController.create(req, res));
+app.patch('/matches/:id/finish', (req, res) => matchesController.updateProgress(req, res));
 
 export default app;
