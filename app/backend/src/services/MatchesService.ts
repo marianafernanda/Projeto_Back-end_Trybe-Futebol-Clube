@@ -16,4 +16,12 @@ export default class MatchesService {
     });
     return matches;
   }
+
+  async getByProgress(progress: boolean) {
+    const matches = await this._model.findAll({
+      where: { inProgress: progress },
+      include: { all: true, attributes: { exclude: ['id'] } },
+    });
+    return matches;
+  }
 }
