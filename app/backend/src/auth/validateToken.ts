@@ -24,10 +24,10 @@ const validateToken = async (req: Request, res: Response, next: NextFunction) =>
     req.body.role = decoded.role;
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid token' });
+      return res.status(401).json({ message: 'Token must be a valid token' });
     }
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token must be a valid token' });
   }
   next();
 };

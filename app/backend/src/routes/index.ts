@@ -23,5 +23,6 @@ app.get('/teams/:id', (req, res) => teamsController.getById(req, res));
 app.get('/matches', (req, res) => matchesController.getAll(req, res));
 app.post('/matches', validateToken, (req, res) => matchesController.create(req, res));
 app.patch('/matches/:id/finish', (req, res) => matchesController.updateProgress(req, res));
+app.patch('/matches/:id', (req, res) => matchesController.update(req, res));
 
 export default app;
