@@ -5,4 +5,10 @@ export default interface Match {
   awayTeam: number;
   awayTeamGoals: number;
   inProgress?: boolean;
+  teamHome?: {
+    teamName?: string;
+  };
+  teamAway?: {
+    teamName?: string;
+  };
 }
