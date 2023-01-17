@@ -3,11 +3,12 @@ import MatchModel from '../database/models/MatchModel';
 import Leaderboard from '../interfaces/leaderboard.interface';
 import Match from '../interfaces/match.interface';
 
-export default class LeaderboardServiceHome {
+export default class LeaderboardService {
   private _teamModel;
   private _matchModel;
   public board: Leaderboard[];
   public match: Match[];
+  filter = 'none';
 
   constructor() {
     this._teamModel = TeamModel;
@@ -62,14 +63,48 @@ export default class LeaderboardServiceHome {
     homeTeam.efficiency = efficiency.toFixed(2);
   }
 
-  async findMatchForHome() {
-    this.match.forEach((match) => {
-      const indexHomeTeam = this.board.findIndex((team) => team.name === match.teamHome?.teamName);
+  async calculateBoardForAway(match: Match, indexAwayTeam: number) {
+    const awayTeam = this.board[indexAwayTeam];
 
-      if (indexHomeTeam >= 0) {
-        this.calculateBoardForHome(match, indexHomeTeam);
+    if (match.awayTeamGoals > match.homeTeamGoals) {
+      awayTeam.totalPoints += 3;
+      awayTeam.totalVictories += 1;
+    } else if (match.awayTeamGoals === match.homeTeamGoals) {
+      awayTeam.totalDraws += 1;
+      awayTeam.totalPoints += 1;
+    } else {
+      awayTeam.totalLosses += 1;
+    }
+
+    awayTeam.totalGames += 1;
+    awayTeam.goalsFavor += match.awayTeamGoals;
+    awayTeam.goalsOwn += match.homeTeamGoals;
+    awayTeam.goalsBalance = awayTeam.goalsFavor - awayTeam.goalsOwn;
+    const efficiency = ((awayTeam.totalPoints / (awayTeam.totalGames * 3)) * 100);
+    awayTeam.efficiency = efficiency.toFixed(2);
+  }
+
+  async findMatch(filter: string) {
+    this.match.forEach((match) => {
+      if (filter !== 'away') {
+        const indexHomeTeam = this.board
+          .findIndex((team) => team.name === match.teamHome?.teamName);
+
+        if (indexHomeTeam >= 0) {
+          this.calculateBoardForHome(match, indexHomeTeam);
+        }
+      }
+
+      if (filter !== 'home') {
+        const indexAwayTeam = this.board
+          .findIndex((team) => team.name === match.teamAway?.teamName);
+
+        if (indexAwayTeam >= 0) {
+          this.calculateBoardForAway(match, indexAwayTeam);
+        }
       }
     });
+    this.filter = filter;
   }
 
   sortBoard() {
@@ -81,10 +116,10 @@ export default class LeaderboardServiceHome {
     this.board = totalPoints;
   }
 
-  async createBoard() {
+  async createBoard(filter: string) {
     await this.getTeamsNames();
     await this.getFinishedMatches();
-    await this.findMatchForHome();
+    await this.findMatch(filter);
     this.sortBoard();
     return this.board;
   }
